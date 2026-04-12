@@ -18,7 +18,13 @@ export class MedicineRepository{
   }
 
   async findAll() {
-    return this.prisma.medicine.findMany();
+    return this.prisma.medicine.findMany({
+      include: {
+        medicineIngredients: {
+          include: { ingredient: true },
+        },
+      },
+    });
   }
 
   async findById(id: number) {

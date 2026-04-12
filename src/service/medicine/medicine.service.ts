@@ -99,10 +99,15 @@ export class MedicineService {
     return this.medicineRepository.update(id, dto);
   }
 
-  // 삭제
+  // 삭제 (관리자: 약–성분·약–증상 연관 행 제거 후 약 삭제. 장바구니·타이머는 DB CASCADE)
   async delete(id: number) {
-    await this.findById(id); //존재 여부 체크
-    return this.medicineRepository.delete(id);
+    await this.findById(id);
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.medicineIngredient.deleteMany({ where: { medicine_id: id } });
+      await tx.medicineSymptom.deleteMany({ where: { medicine_id: id } });
+      return tx.medicine.delete({ where: { id } });
+    });
   }
 
   async addSymptoms(medicineId: number, symptomIds: number[]) {

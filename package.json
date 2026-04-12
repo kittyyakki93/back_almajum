@@ -5,7 +5,11 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "scripts": {
+    "db:seed": "prisma db seed",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

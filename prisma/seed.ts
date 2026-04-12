@@ -2,13 +2,13 @@ import { PrismaClient, MedicineType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function ensureIngredient(name: string, description?: string) {
+async function ensureIngredient(name: string, description?: string | null) {
   const existing = await prisma.ingredient.findFirst({ where: { name } });
   if (existing) return existing;
   return prisma.ingredient.create({
     data: {
       name,
-      description: description ?? `${name} (시드 데이터)`,
+      description: description ?? null,
     },
   });
 }
@@ -52,47 +52,45 @@ async function ensureMedicineWithIngredients(input: {
 }
 
 async function main() {
-  // 일반의약품(OTC) — 성분 1~2개 연결
   await ensureMedicineWithIngredients({
-    name: "타이레놀정 500mg",
+    name: "아세탐정 500mg",
     type: MedicineType.OTC,
-    description: "해열·진통에 쓰이는 대표 일반의약품(시드 예시)",
+    description: "해열·진통.",
     ingredientNames: ["아세트아미노펜"],
   });
 
   await ensureMedicineWithIngredients({
-    name: "부루펜정 200mg",
+    name: "이브프로정 200mg",
     type: MedicineType.OTC,
-    description: "소염·진통(시드 예시)",
+    description: "소염·진통.",
     ingredientNames: ["이부프로펜"],
   });
 
   await ensureMedicineWithIngredients({
-    name: "제산제 정제 (시드)",
+    name: "제산정 650mg",
     type: MedicineType.OTC,
-    description: "위산 과다 완화(개발용 시드 예시)",
+    description: "위산 과다 완화.",
     ingredientNames: ["탄산수소나트륨"],
   });
 
-  // 영양제(SUPPLEMENT)
   await ensureMedicineWithIngredients({
-    name: "오메가3 EPA/DHA (시드)",
+    name: "오메가3 골드 1100",
     type: MedicineType.SUPPLEMENT,
-    description: "불포화지방산 보충(시드 예시)",
+    description: "불포화지방산 보충.",
     ingredientNames: ["EPA", "DHA"],
   });
 
   await ensureMedicineWithIngredients({
-    name: "비타민D3 2000IU (시드)",
+    name: "비타민D3 2000IU",
     type: MedicineType.SUPPLEMENT,
-    description: "뼈·면역 관련(시드 예시)",
+    description: "뼈·면역.",
     ingredientNames: ["콜레칼시페롤"],
   });
 
   await ensureMedicineWithIngredients({
-    name: "마그네슘 비스글리시네이트 (시드)",
+    name: "마그네슘 비스글리시네이트 400",
     type: MedicineType.SUPPLEMENT,
-    description: "마그네슘 보충(시드 예시)",
+    description: "마그네슘 보충.",
     ingredientNames: ["마그네슘"],
   });
 
@@ -100,7 +98,7 @@ async function main() {
   const sup = await prisma.medicine.count({
     where: { type: MedicineType.SUPPLEMENT },
   });
-  console.log(`Seed 완료: OTC ${otc}건, SUPPLEMENT ${sup}건 (이미 있던 이름은 건너뜀)`);
+  console.log(`OTC ${otc}건, SUPPLEMENT ${sup}건`);
 }
 
 main()
